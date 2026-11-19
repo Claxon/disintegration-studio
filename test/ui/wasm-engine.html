@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WebAssembly engine check</title>
+  <style>body { font: 13px/1.5 system-ui, sans-serif; margin: 16px; background: #222; color: #ddd; } .ok { color: #7d7; } .bad { color: #f77; }</style>
+</head>
+<body>
+  <!-- Checks the WebAssembly engine in a browser (asynchronous loading, the base64 decoder):
+       node tools/serve.js, then open http://localhost:5179/test/ui/wasm-engine.html -->
+  <h3>WebAssembly engine check</h3>
+  <pre id="out">loading…</pre>
+  <script src="../../disintegration-studio/js/disintegration-core.js"></script>
+  <script src="../../disintegration-studio/js/presets.js"></script>
+  <script src="../../disintegration-studio/js/engine-wasm-bin.js"></script>
+  <script src="../../disintegration-studio/js/engine-wasm.js"></script>
+  <script>
+    const D = window.Disintegration, C = D._core, out = document.getElementById('out'), lines = [];
+    const say = (s, cls) => { lines.push(cls ? '<span class="' + cls + '">' + s + '</span>' : s); out.innerHTML = lines.join('\n'); };
+    say('engine straight after loading: ' + D.engine);
+    D.wasmReady.then((engine) => {
+      say('engine once ready: ' + engine + ' ' + JSON.stringify(D.engineInfo()));
+      const W = 600, H = 800, plate = new Uint8ClampedArray(W * H * 4), subject = new Uint8ClampedArray(W * H * 4);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = (y * W + x) * 4, u = x / W, v = y / H;
+        plate[i] = 60; plate[i + 1] = 90 + 60 * v; plate[i + 2] = 140; plate[i + 3] = 255;
+        if (Math.hypot((u - 0.5) / 0.15, (v - 0.2) / 0.1) < 1 || (Math.abs(u - 0.5) < 0.25 && v > 0.3 && v < 0.95)) { subject[i] = 200 * u; subject[i + 1] = 120; subject[i + 2] = 255 * v; subject[i + 3] = 255; }
+      }
+      const ctx = D.prepare({ width: W, height: H, subject, plate });
+      let all = true;
+      for (const p of window.DISINTEGRATION_PRESETS) {
+        const st = D.normalize(Object.assign({}, p.state, { strokes: [{ mode: 'protect', size: 0.1, hard: 0.6, pts: [0.5, 0.5, 0.55, 0.7] }] }));
+        let t = performance.now();
+        const rj = C.render(ctx, st), cj = C.composite(ctx, rj);
+        const tj = performance.now() - t;
+        t = performance.now();
+        const rw = D.render(ctx, st), cw = D.composite(ctx, rw);
+        const tw = performance.now() - t;
+        let diff = 0;
+        for (let i = 0; i < rj.erode.length; i++) if (rj.erode[i] !== rw.erode[i]) diff++;
+        for (let i = 0; i < cj.data.length; i++) if (rj.particles[i] !== rw.particles[i] || cj.data[i] !== cw.data[i]) diff++;
+        all = all && !diff;
+        say(p.name.padEnd(22) + ' differing bytes ' + diff + '   JS ' + tj.toFixed(1) + ' ms, wasm ' + tw.toFixed(1) + ' ms', diff ? 'bad' : 'ok');
+      }
+      say(all ? 'all identical' : 'DIFFERENCES', all ? 'ok' : 'bad');
+      document.title = all ? 'ok' : 'bad';
+    });
+  </script>
+</body>
+</html>

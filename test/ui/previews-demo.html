@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Previews demo</title>
+<link rel="stylesheet" href="../../disintegration-studio/ui-previews.css">
+<style>
+  body { margin: 0; background-color: #323232; color: #d0d0d0; font-family: sans-serif; font-size: 11px; }
+  .page { display: flex; flex-direction: row; }
+  .col { width: 360px; padding: 10px; box-sizing: border-box; background-color: #262626; }
+  .controls { padding: 10px 16px; }
+  h3 { font-size: 11px; color: #aaa; margin: 10px 0 2px 0; }
+  .ctl { display: flex; flex-direction: row; align-items: center; margin: 2px 0; }
+  .ctl span { width: 80px; }
+  .ctl input { width: 200px; }
+  .ctl b { width: 40px; margin-left: 6px; font-weight: normal; color: #9cd; }
+  #timing { margin-top: 12px; color: #9cd; white-space: pre; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="col" id="col"></div>
+  <div class="controls" id="ctl"></div>
+</div>
+<div id="timing" class="controls"></div>
+<script src="../../disintegration-studio/js/ui-raster.js"></script>
+<script src="../../disintegration-studio/js/ui-previews.js"></script>
+<script>
+  const fx = { density: 0.55, size: 0.45, sizeVar: 0.75, spin: 1, texture: 0.6, distance: 0.55, spread: 0.3, burst: 0.1,
+    turbulence: 0.35, turbScale: 0.5, gravity: 0, trail: 0, fade: 0.35, shrink: 0.5, opacity: 1, colorVar: 0.12, seed: 1 };
+  const P = DSUI.previews, get = () => fx, col = document.getElementById('col');
+  const head = (t) => { const h = document.createElement('h3'); h.textContent = t; return h; };
+  const views = {};
+  col.appendChild(head('Particles')); col.appendChild(views.particles = P.particles(get));
+  col.appendChild(head('Motion')); col.appendChild(views.motion = P.motion(get));
+  col.appendChild(head('Look')); col.appendChild(views.look = P.look(get));
+  col.appendChild(views.strip = P.colourStrip(get));
+  col.appendChild(views.seed = P.seedRow({ get, set: (v) => { fx.seed = v; syncAll(); } }));
+  function syncAll() { for (const k in views) views[k]._sync(); syncSliders(); }
+
+  const ranges = [['density'], ['size'], ['sizeVar'], ['spin'], ['texture'], ['distance'], ['spread'], ['burst'], ['turbulence'],
+    ['turbScale'], ['gravity', -1, 1], ['trail'], ['fade'], ['shrink'], ['opacity'], ['colorVar'], ['seed', 1, 999, 1]];
+  const ctl = document.getElementById('ctl'), sliders = {};
+  ranges.forEach(([p, min = 0, max = 1, step = 0.01]) => {
+    const row = document.createElement('div'); row.className = 'ctl';
+    const l = document.createElement('span'); l.textContent = p;
+    const r = document.createElement('input'); r.type = 'range'; r.min = min; r.max = max; r.step = step; r.value = fx[p];
+    const v = document.createElement('b'); v.textContent = fx[p];
+    r.addEventListener('input', () => { fx[p] = parseFloat(r.value); v.textContent = r.value; syncAll(); });
+    row.appendChild(l); row.appendChild(r); row.appendChild(v); ctl.appendChild(row);
+    sliders[p] = [r, v];
+  });
+  function syncSliders() { for (const p in sliders) if (String(fx[p]) !== sliders[p][0].value) { sliders[p][0].value = fx[p]; sliders[p][1].textContent = fx[p]; } }
+
+  // draw timing in this browser (draw + encode, the cost of one redraw)
+  const D = P._draw, out = [];
+  for (const k of ['particles', 'motion', 'look', 'colourStrip']) {
+    let t = 0; const N = 20;
+    for (let i = 0; i < N; i++) { const a = performance.now(); D[k](Object.assign({}, fx, { seed: i + 1 })).url(); t += performance.now() - a; }
+    out.push(k + ': ' + (t / N).toFixed(2) + ' ms per redraw');
+  }
+  document.getElementById('timing').textContent = out.join('\n');
+  window.__previews = { fx, views, syncAll };
+</script>
+</body>
+</html>

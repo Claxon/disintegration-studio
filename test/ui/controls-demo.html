@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Controls demo</title>
+  <link rel="stylesheet" href="../../disintegration-studio/ui-controls.css">
+  <style>
+    body { margin: 0; background-color: #262626; color: #E6E6E6; font-size: 11px; font-family: sans-serif; display: flex; flex-direction: row; }
+    #col { width: 360px; flex: 0 0 360px; padding: 4px 10px 30px 10px; box-sizing: border-box; background-color: #2B2B2B; border-right: 1px solid #3B3B3B; }
+    #side { flex: 1 1 auto; padding: 10px; }
+    #log { font-family: monospace; font-size: 11px; color: #9cd; white-space: pre; height: 70vh; overflow-y: auto; background-color: #1B1B1B; padding: 6px; }
+    .row { display: flex; flex-direction: row; align-items: center; margin-bottom: 8px; }
+    .row > * { margin-right: 8px; }
+    label { color: #A3A3A3; }
+  </style>
+</head>
+<body>
+  <div id="col"></div>
+  <div id="side">
+    <div class="row">
+      <label><input type="checkbox" id="fine"> Fine mode</label>
+      <span id="btnSync" style="cursor:pointer;color:#4C9BFF">Randomise state + _sync all</span>
+    </div>
+    <div id="log"></div>
+  </div>
+  <script src="../../disintegration-studio/js/ui-raster.js"></script>
+  <script src="../../disintegration-studio/js/ui-controls.js"></script>
+  <script>
+    const C = DSUI.controls;
+    const fx = { auto: true, pattern: 'sweep', amount: 0.6, angle: 0, autoAngle: true, roughness: 0.5, chunk: 0.4, softness: 0.3, blend: 0.3,
+      density: 0.5, size: 0.4, gravity: -0.2, seed: 42, distance: 0.5 };
+    const ui = { fine: false, brush: 0.08, hard: 0.5, flow: 1, tool: 'aim', open: { paint: true, disp: true, part: true, motion: true } };
+    const logEl = document.getElementById('log');
+    const log = (...a) => { logEl.textContent = a.join(' ') + '\n' + logEl.textContent; };
+    window.__log = [];
+    const col = document.getElementById('col');
+    const isFine = () => ui.fine;
+    const H = C.HINTS;
+    const pctSlider = (p, label, extra) => C.slider(Object.assign({ label, min: 0, max: 100, step: 1, mul: 100, def: 0.5, isFine,
+      get: () => fx[p], set: (v) => { fx[p] = v; window.__log.push([p, v]); log('set', p, v); }, lo: H[p] && H[p][0], hi: H[p] && H[p][1] }, extra || {}));
+    const sec = (id, title, icon, accent) => { const s = C.section({ id, title, icon, accent, open: ui.open[id] !== false, onToggle: (o) => log('toggle section', id, o) }); col.appendChild(s.el); return s.body; };
+
+    // Paint
+    let paint = sec('paint', 'Paint', 'paint', C.COLORS.paint);
+    const clear = C.iconButton({ icon: 'trash', label: 'Clear', title: 'Clear all paint', onClick: () => log('clear') });
+    const seg = C.segmented({ options: [
+      { value: 'aim', label: 'Aim', icon: 'aim', color: C.COLORS.aim },
+      { value: 'add', label: 'Disperse', icon: 'disperse', color: C.COLORS.add },
+      { value: 'protect', label: 'Protect', icon: 'protect', color: C.COLORS.protect },
+      { value: 'erase', label: 'Erase', icon: 'erase', color: C.COLORS.erase },
+    ], get: () => ui.tool, set: (v) => { ui.tool = v; log('tool', v); preview._sync(); }, extra: clear });
+    paint.appendChild(seg);
+    const preview = C.brushPreview({ get: () => ({ mode: ui.tool, size: ui.brush, hard: ui.hard, flow: ui.flow, blend: fx.blend }) });
+    const uiSlider = (k, label, min, max, def) => C.slider({ label, min, max, step: 1, mul: 100, def, isFine, accent: C.COLORS.paint, get: () => ui[k], set: (v) => { ui[k] = v; log('set ui.' + k, v); } });
+    paint.appendChild(C.brushBlock({ preview, sliders: [uiSlider('brush', 'Size', 1, 40, 0.08), uiSlider('hard', 'Edge', 0, 100, 0.5), uiSlider('flow', 'Strength', 5, 100, 1)],
+      below: pctSlider('blend', 'Blend', { accent: C.COLORS.paint, def: 0.3 }) }));
+
+    // Dispersion
+    const disp = sec('disp', 'Dispersion', 'dispersion', C.COLORS.dispersion);
+    disp.appendChild(C.toggle({ label: 'Automatic', hint: (on) => on ? 'Disperses from the start point by itself' : 'Disperses only what you paint', get: () => fx.auto, set: (v) => { fx.auto = v; log('set auto', v); syncAll(); } }));
+    disp.appendChild(C.tiles({ options: [{ value: 'sweep', label: 'One side' }, { value: 'point', label: 'A point' }, { value: 'edges', label: 'All edges' }],
+      get: () => fx.pattern, set: (v) => { fx.pattern = v; log('set pattern', v); }, disabled: () => !fx.auto }));
+    disp.appendChild(pctSlider('amount', 'Amount', { accent: C.COLORS.dispersion }));
+    disp.appendChild(C.dial({ get: () => fx.angle, set: (v) => { fx.angle = v; fx.autoAngle = false; window.__log.push(['angle', v]); log('set angle', v); },
+      isAuto: () => fx.autoAngle, onAuto: () => { fx.autoAngle = true; log('auto angle'); } }));
+    disp.appendChild(pctSlider('roughness', 'Edge breakup', { accent: C.COLORS.dispersion }));
+
+    // Particles / Motion / Look / Tips
+    sec('tips', 'Brush tips', 'tips', C.COLORS.tips).appendChild(C.el('div', { class: 'note', text: '(tips module goes here)' }));
+    const part = sec('part', 'Particles', 'particles', C.COLORS.particles);
+    part.appendChild(pctSlider('density', 'Density', { accent: C.COLORS.particles }));
+    part.appendChild(pctSlider('size', 'Size', { accent: C.COLORS.particles }));
+    const motion = sec('motion', 'Motion', 'motion', C.COLORS.motion);
+    motion.appendChild(pctSlider('distance', 'Strength', { accent: C.COLORS.motion }));
+    motion.appendChild(pctSlider('gravity', 'Rise / fall', { accent: C.COLORS.motion, min: -100, max: 100, bipolar: true, def: 0 }));
+    const look = sec('look', 'Look', 'look', C.COLORS.look);
+    look.appendChild(C.slider({ label: 'Seed', min: 1, max: 999, step: 1, mul: 1, whole: true, def: 1, isFine, accent: C.COLORS.look, get: () => fx.seed, set: (v) => { fx.seed = v; log('set seed', v); } }));
+
+    function syncAll() { const rows = col.querySelectorAll('.field'); for (let i = 0; i < rows.length; i++) if (rows[i]._sync) rows[i]._sync(); }
+    document.getElementById('fine').addEventListener('change', (e) => { ui.fine = e.target.checked; syncAll(); });
+    document.getElementById('btnSync').addEventListener('click', () => {
+      fx.amount = Math.random(); fx.angle = Math.round(Math.random() * 360 - 180); fx.gravity = Math.random() * 2 - 1; ui.brush = 0.01 + Math.random() * 0.39; ui.hard = Math.random(); fx.blend = Math.random();
+      ui.tool = ['aim', 'add', 'protect', 'erase'][Math.floor(Math.random() * 4)]; fx.pattern = ['sweep', 'point', 'edges'][Math.floor(Math.random() * 3)];
+      syncAll(); log('randomised');
+    });
+    window.__demo = { fx, ui, syncAll, seg, preview };
+  </script>
+</body>
+</html>

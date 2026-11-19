@@ -1,0 +1,137 @@
+/* Disintegration Studio — settings controls (js/ui-controls.js).
+ * Flexbox and position:absolute only; no grid, transforms, gradients or CSS variables for layout,
+ * since UXP does not support them reliably. Value rows also carry `.field` (for main.js's
+ * syncInspectorValues), so the rules here are written to win over styles.css's `.field` rules. */
+
+.dsc-spacer { flex: 1 1 auto; }
+.dsc-icon, .dsc-secIcon, .dsc-chev, .dsc-segIcon, .dsc-ibIcon, .dsc-qIcon, .dsc-tilePic, .dsc-bpImg { flex: 0 0 auto; display: block; }
+
+/* ---------- section card ---------- */
+.dsc-section {
+  background-color: #2F2F2F;
+  border: 1px solid #3B3B3B;
+  border-radius: 8px;
+  margin: 8px 0 0 0;
+}
+.dsc-secHead {
+  display: flex; flex-direction: row; align-items: center;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.dsc-secIcon { margin-right: 8px; }
+.dsc-secTitle { font-weight: bold; font-size: 12px; color: #E6E6E6; }
+.dsc-secBody { padding: 0 10px 10px 10px; }
+
+/* ---------- slider ---------- */
+.field.dsc-slider { display: flex; flex-direction: column; align-items: stretch; margin: 6px 0 8px 0; }
+.dsc-sRow { display: flex; flex-direction: row; align-items: center; }
+.dsc-lbl { color: #E6E6E6; cursor: default; flex: 0 1 auto; overflow: hidden; white-space: nowrap; }
+.field input.dsc-num, input.dsc-num { width: 56px; flex: 0 0 56px; margin: 0; text-align: right; }
+.dsc-track { position: relative; display: flex; flex-direction: column; padding-bottom: 4px; }
+.field .dsc-track input[type=range], .dsc-range { flex: 0 0 auto; width: 100%; min-width: 0; margin: 2px 0 0 0; }
+.dsc-strip { position: relative; height: 3px; background-color: #1B1B1B; border-radius: 2px; margin: 1px 6px 0 6px; overflow: hidden; }
+.dsc-fill { position: absolute; top: 0; height: 3px; left: 0; width: 0; border-radius: 2px; }
+.dsc-fineWin { position: absolute; top: 0; height: 3px; background-color: #4A4A4A; }
+.dsc-tick { position: absolute; top: 0; width: 1px; height: 3px; margin-left: -1px; background-color: #E6E6E6; }
+.dsc-ends { display: flex; flex-direction: row; font-size: 10px; color: #9E9E9E; margin-top: 1px; }
+
+/* ---------- toggle switch ---------- */
+.field.dsc-toggle { display: flex; flex-direction: row; align-items: center; margin: 6px 0 8px 0; cursor: pointer; }
+.dsc-tText { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; margin-right: 8px; }
+.dsc-tTitle { color: #E6E6E6; }
+.dsc-tHint { color: #9E9E9E; font-size: 10px; margin-top: 2px; white-space: nowrap; overflow: hidden; }
+.dsc-switch { position: relative; flex: 0 0 40px; width: 40px; height: 22px; border-radius: 11px; background-color: #555555; }
+.dsc-switch.on { background-color: #1F6FD6; }
+.dsc-knob { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 9px; background-color: #FFFFFF; }
+
+/* ---------- tab container headers ---------- */
+/* The open tab has the panel's colour and no bottom edge, so it runs into the panel below; the
+   line under the other tabs, and the gap and fill either side of them, is the panel's top edge. */
+.dsc-tabs { display: flex; flex-direction: row; align-items: flex-end; }
+.dsc-tabGap { flex: 0 0 8px; height: 1px; border-bottom: 1px solid #3B3B3B; }
+.dsc-tabFill { flex: 1 1 auto; height: 1px; border-bottom: 1px solid #3B3B3B; }
+.dsc-tab {
+  position: relative; flex: 0 0 auto; height: 28px; padding: 0 8px; margin-right: 2px;
+  display: flex; flex-direction: row; align-items: center;
+  background-color: #1E1E1E; color: #A3A3A3; cursor: pointer;
+  border: 1px solid #3B3B3B; border-top-left-radius: 6px; border-top-right-radius: 6px;
+}
+.dsc-tab.on { height: 31px; background-color: #262626; color: #E6E6E6; border-bottom: 1px solid #262626; }
+.dsc-tabTop { position: absolute; left: 0; right: 0; top: 0; height: 2px; border-top-left-radius: 6px; border-top-right-radius: 6px; }
+.dsc-tabIcon { flex: 0 0 auto; display: block; margin-right: 5px; }
+.dsc-tabLbl { white-space: nowrap; font-size: 11px; }
+.dsc-tab:focus { outline: 1px solid #4C9BFF; }
+
+/* ---------- segmented tool switch ---------- */
+.field.dsc-segmented { display: flex; flex-direction: row; align-items: stretch; margin: 4px 0 8px 0; }
+.dsc-segCells {
+  flex: 1 1 auto; display: flex; flex-direction: row;
+  background-color: #1B1B1B; border: 1px solid #3B3B3B; border-radius: 6px; overflow: hidden;
+}
+.dsc-seg {
+  position: relative; flex: 1 1 0; width: 10px; height: 48px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; color: #A3A3A3; border-right: 1px solid #2A2A2A;
+}
+.dsc-seg:last-child { border-right: none; }
+.dsc-seg.on { background-color: #333333; color: #E6E6E6; }
+.dsc-segLbl { margin-top: 4px; font-size: 11px; }
+.dsc-segBar { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; }
+.dsc-segExtra { flex: 0 0 auto; display: flex; flex-direction: row; align-items: stretch; margin-left: 6px; }
+
+/* ---------- icon button ---------- */
+.dsc-iconBtn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 44px; padding: 0 6px;
+  background-color: #1B1B1B; border: 1px solid #3B3B3B; border-radius: 6px;
+  color: #A3A3A3; cursor: pointer;
+}
+.dsc-iconBtn.bare { min-width: 26px; padding: 4px; }
+.dsc-ibLbl { margin-top: 4px; font-size: 11px; }
+
+/* ---------- picture tiles ---------- */
+.field.dsc-tiles { display: flex; flex-direction: row; align-items: stretch; margin: 4px 0 8px 0; }
+.dsc-tile {
+  flex: 1 1 0; width: 10px; height: 78px; margin-right: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background-color: #1B1B1B; border: 1px solid #3B3B3B; border-radius: 6px; cursor: pointer;
+  color: #A3A3A3;
+}
+.dsc-tile:last-child { margin-right: 0; }
+.dsc-tile.on { border-color: #F0A040; background-color: #3B3226; color: #E6E6E6; }
+.dsc-tileLbl { margin-top: 6px; font-size: 11px; }
+.dsc-tiles.off .dsc-tile { cursor: default; }
+
+/* ---------- direction dial ---------- */
+.field.dsc-dialRow { display: flex; flex-direction: row; align-items: center; margin: 6px 0 8px 0; }
+.dsc-dial { position: relative; flex: 0 0 120px; width: 120px; height: 120px; cursor: crosshair; }
+.dsc-dial img { position: absolute; left: 0; top: 0; width: 120px; height: 120px; }
+.dsc-dialSide { flex: 1 1 auto; display: flex; flex-direction: column; margin-left: 12px; min-width: 0; }
+.dsc-degRow { display: flex; flex-direction: row; align-items: center; margin-bottom: 8px; }
+.field input.dsc-degBox, input.dsc-degBox { width: 56px; flex: 0 0 56px; }
+.dsc-deg { color: #A3A3A3; margin-left: 3px; font-size: 12px; }
+.dsc-chip {
+  padding: 3px 10px; border-radius: 10px; border: 1px solid #3B3B3B; background-color: #1B1B1B;
+  color: #A3A3A3; cursor: pointer; font-size: 10px;
+}
+.dsc-chip.on { background-color: #1F6FD6; border-color: #1F6FD6; color: #FFFFFF; }
+.dsc-qRow { display: flex; flex-direction: row; margin-bottom: 4px; }
+.dsc-q {
+  flex: 1 1 0; width: 10px; height: 26px; margin-right: 4px;
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  background-color: #1B1B1B; border: 1px solid #3B3B3B; border-radius: 5px; cursor: pointer;
+}
+.dsc-q:last-child { margin-right: 0; }
+.dsc-q.on { background-color: #7A5220; border-color: #F0A040; }
+
+/* ---------- brush preview ---------- */
+.field.dsc-brushPreview { display: flex; flex-direction: column; align-items: center; margin: 0; flex: 0 0 auto; }
+.dsc-bpWell { width: 112px; height: 112px; background-color: #1B1B1B; border: 1px solid #3B3B3B; border-radius: 6px; overflow: hidden; }
+.dsc-bpCap { font-size: 10px; color: #9E9E9E; margin-top: 4px; width: 112px; text-align: center; }
+.dsc-brushBlock { display: flex; flex-direction: column; margin: 4px 0 0 0; }
+.dsc-bbTop { display: flex; flex-direction: row; align-items: flex-start; }
+.dsc-bbSliders { flex: 1 1 auto; display: flex; flex-direction: column; margin-left: 12px; min-width: 0; }
+.dsc-bbSliders .field.dsc-slider { margin: 0 0 4px 0; }
+
+/* keyboard focus on the div controls */
+.dsc-secHead:focus, .dsc-seg:focus, .dsc-tile:focus, .dsc-q:focus, .dsc-chip:focus, .dsc-iconBtn:focus, .field.dsc-toggle:focus { outline: 1px solid #4C9BFF; }

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Disintegration Studio</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="ui-controls.css">
+  <link rel="stylesheet" href="ui-tips.css">
+  <link rel="stylesheet" href="ui-previews.css">
+</head>
+<body>
+  <!-- Main editing dialog: live preview on the left, controls on the right -->
+  <dialog id="studio">
+    <!-- 100vh is the dialog window's height; the dialog element itself is only as tall as its content -->
+    <div id="heightProbe"></div>
+    <div id="dlgRoot">
+      <div id="left">
+        <div id="bigBar" class="viewBar">
+          <button id="bigZoomOut" title="Zoom out">−</button>
+          <button id="bigFit" title="Fit to view">Fit</button>
+          <button id="bigActual" title="Actual pixels">1:1</button>
+          <button id="bigZoomIn" title="Zoom in">+</button>
+          <span id="bigZoom" class="zoomLbl"></span>
+          <span class="sep"></span>
+          <button id="btnBefore" class="toggle" title="Show the picture without the effect">Before</button>
+          <button id="btnMask" class="toggle" title="Show what is being removed (red) and protected (green), with the fade around protected paint">Mask</button>
+          <label class="chk"><input type="checkbox" id="guidesChk" checked> Guides</label>
+          <span id="verLbl" class="verLbl" title="The version of Disintegration Studio that is running"></span>
+        </div>
+        <div id="bigWrap" class="viewWrap">
+          <img id="bigImg" alt="" draggable="false">
+          <input type="number" id="wheelCatch" step="1" value="5000" autofocus>
+          <!-- the brush outline (main.js placeRing): the dashed and dotted rings are a picture, the
+               solid edge a dark ring under a light one -->
+          <div id="brushCursor">
+            <img id="ringDashes" alt="" draggable="false">
+            <div id="ringEdgeB" class="ring halo"></div><div id="ringEdge" class="ring edge"></div>
+          </div>
+          <div id="bigEmpty" class="viewEmpty">Open a document in Photoshop, then choose Plugins › Disintegration Studio.</div>
+        </div>
+        <div id="leftFoot">
+          <div id="status"></div>
+          <div class="hint" id="hint"></div>
+        </div>
+      </div>
+
+      <div id="right">
+        <div id="rightTop">
+          <div class="bar" id="actionBar">
+            <span id="modeLbl" class="modeLbl"></span>
+            <button id="btnCancel" title="Close and undo everything this dialog did">Cancel</button>
+            <button id="btnApply" title="Write the effect to the document and keep editing">Apply</button>
+            <button id="btnOK" class="primary" title="Write the effect to the document and close">OK</button>
+          </div>
+          <div class="bar">
+            <select id="presetSel" title="Load a look"></select>
+            <button id="btnAuto" title="Let the plugin choose the direction and the start point again">Auto</button>
+            <button id="btnShuffle" title="Same settings, different random pieces">Shuffle</button>
+            <button id="btnUndo" title="Undo">Undo</button>
+            <button id="btnRedo" title="Redo">Redo</button>
+            <button id="btnFine" class="toggle" title="Fine adjustment. Each slider covers a tenth of its range, around the value it holds, and moves in steps a tenth of the size. The handles on the preview move a fifth as far as the pointer.">Fine</button>
+          </div>
+          <div class="bar" id="browserBar" style="display:none">
+            <input type="file" id="fileInput" accept="image/*">
+          </div>
+        </div>
+
+        <!-- one tab per group of settings; only the open one is laid out -->
+        <div id="tabBar"></div>
+        <div id="scroll">
+          <div class="tabPanel" id="tab-subject">
+          <div class="section">
+            <div class="sectionHead static">Subject</div>
+            <div class="bar tight">
+              <button id="btnSubjAuto" title="Find the main subject again (or use the selection you made in Photoshop)">Auto-detect</button>
+              <button id="btnSubjBox" class="toggle" title="Drag a box around the subject you want, for example one person in a crowd">Box select</button>
+              <button id="btnSubjLayer" title="Use the layer that was active when you opened the dialog, if it is already cut out">Use layer</button>
+            </div>
+            <div class="field">
+              <span class="lbl">Background</span>
+              <select id="fillSel" title="How the hole behind the subject is filled in"></select>
+              <button id="btnGenerate" title="Cut out the subject and fill the background now, so the preview shows the real thing">Build now</button>
+            </div>
+            <div class="note" id="subjectNote"></div>
+          </div>
+
+          <div class="section">
+            <div class="sectionHead static">My presets</div>
+            <div class="bar tight">
+              <input type="text" id="presetName" placeholder="Preset name">
+              <button id="btnSavePreset">Save</button>
+              <button id="btnDelPreset" title="Delete the selected ★ preset">Delete</button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="sectionHead static">Preview</div>
+            <div class="field">
+              <span class="lbl">Quality</span>
+              <select id="qualitySel" title="Preview resolution. The result is always made at full resolution."></select>
+            </div>
+          </div>
+          </div>
+
+          <div class="tabPanel" id="tab-paint">
+            <div class="section card tabCard">
+              <div id="brushFields"></div>
+              <div class="note">Across the fade fewer pieces leave, and they are smaller and stay closer. Press Mask to see it.</div>
+            </div>
+          </div>
+
+          <!-- Dispersion, Brush tips, Particles, Motion and Look: one tab panel each, built by main.js -->
+          <div id="inspector"></div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/disintegration-core.js"></script>
+  <!-- the same engine compiled to WebAssembly (engine-wasm/), used once it has loaded -->
+  <script src="js/engine-wasm-bin.js"></script>
+  <script src="js/engine-wasm.js"></script>
+  <script src="js/presets.js"></script>
+  <script src="js/ui-raster.js"></script>
+  <script src="js/ui-controls.js"></script>
+  <script src="js/ui-tips.js"></script>
+  <script src="js/ui-previews.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+[package]
+name = "disintegration-engine"
+version = "0.1.0"
+edition = "2021"
+description = "The hot core of Disintegration Studio's engine (disintegration-core.js), compiled to WebAssembly"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,0 +1,6 @@
+dist/
+test/out/
+test/*.png
+test/*.jpg
+test/*.webp
+.backup/

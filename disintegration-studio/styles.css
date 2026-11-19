@@ -1,0 +1,122 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--uxp-host-background-color, #2b2b2b);
+  color: var(--uxp-host-text-color, #dcdcdc);
+  font-size: var(--uxp-host-font-size, 11px);
+  font-family: sans-serif;
+}
+button, select, input { font-size: 11px; }
+
+/* ---------- dialog ---------- */
+dialog#studio {
+  padding: 0;
+  border: none;
+  background-color: var(--uxp-host-background-color, #2b2b2b);
+  color: var(--uxp-host-text-color, #dcdcdc);
+}
+dialog#studio { position: relative; }
+#heightProbe { position: absolute; left: 0; top: 0; width: 1px; height: 100vh; visibility: hidden; pointer-events: none; }
+#dlgRoot { display: flex; flex-direction: row; height: 100%; }
+#left { display: flex; flex-direction: column; flex: 1 1 auto; padding: 8px; min-width: 200px; }
+#right {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: 360px;
+  border-left: 1px solid rgba(128,128,128,0.45);
+  position: relative; /* the brush tip library sheet is laid over this column */
+}
+#rightTop { flex: 0 0 auto; padding: 8px 10px 4px 10px; }
+/* the tab headers (ui-controls tabs()), sitting on the settings panel */
+#tabBar { flex: 0 0 auto; padding-top: 4px; }
+.tabCard { padding-top: 8px; }
+.tabCard.dsc-section { padding-top: 0; }
+.tabCard .dsc-secBody { padding-top: 10px; }
+#scroll { flex: 1 1 auto; overflow-y: scroll; padding: 0 10px 24px 10px; min-height: 80px; height: 300px; }
+#actionBar { flex-wrap: nowrap; padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid rgba(128,128,128,0.3); }
+#actionBar button { flex: 0 0 auto; min-width: 54px; }
+#actionBar button.primary { padding: 4px 12px; }
+.modeLbl { flex: 1 1 auto; min-width: 60px; overflow: hidden; color: var(--uxp-host-text-color-secondary, #aaa); }
+
+.bar { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; margin: 4px 0; }
+.bar > * { margin-right: 4px; margin-bottom: 2px; }
+.bar.tight { margin: 2px 0; }
+#presetSel { flex: 1 1 auto; min-width: 110px; }
+#presetName { flex: 1 1 auto; min-width: 80px; }
+.chk { display: flex; flex-direction: row; align-items: center; }
+
+.viewWrap {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  background-color: #1a1a1a;
+  border: 1px solid #444;
+}
+#bigWrap { flex: 1 1 auto; }
+.viewWrap img { position: absolute; left: 0; top: 0; cursor: crosshair; }
+/* holds the keyboard focus so that the wheel reaches the dialog (see main.js); kept out of sight */
+#wheelCatch { position: absolute; left: -400px; top: 0; width: 60px; height: 20px; margin: 0; }
+/* the brush outline: a container at the pointer, holding rings centred on it (main.js placeRing) */
+#brushCursor { position: absolute; left: 0; top: 0; width: 0; height: 0; display: none; pointer-events: none; }
+.ring { position: absolute; display: none; background-color: transparent; pointer-events: none; }
+.ring.halo { border: 3px solid rgba(0, 0, 0, 0.55); }
+.ring.edge { border: 1px solid rgba(255, 255, 255, 0.95); }
+#ringDashes { position: absolute; display: none; pointer-events: none; }
+.viewEmpty { position: absolute; left: 0; right: 0; top: 40%; color: #888; padding: 12px; text-align: center; }
+.viewBar { display: flex; flex-direction: row; align-items: center; margin: 0 0 6px 0; flex: 0 0 auto; }
+.viewBar button { min-width: 30px; margin-right: 3px; }
+.viewBar .zoomLbl { margin-left: 4px; color: #aaa; min-width: 44px; }
+.viewBar .sep { flex: 1 1 auto; }
+.verLbl { margin-left: 10px; color: #8A8A8A; font-size: 10px; white-space: nowrap; }
+button.toggle.on { background-color: #2680eb; color: #fff; }
+#leftFoot { flex: 0 0 auto; }
+.hint { color: #888; font-size: 10px; margin: 3px 0 2px 0; min-height: 12px; }
+.note { color: #999; font-size: 10px; margin: 3px 0 4px 0; }
+
+/* the fixed sections are cards like the ones ui-controls.js builds */
+.section { background-color: #2F2F2F; border: 1px solid #3B3B3B; border-radius: 8px; margin: 8px 0 0 0; padding: 2px 10px 8px 10px; }
+.section .sectionHead.static { text-transform: none; letter-spacing: 0; font-size: 12px; color: #E6E6E6; padding: 6px 0 4px 0; }
+#scroll { background-color: #262626; }
+#inspector .subHead { color: #E6E6E6; font-size: 11px; margin: 8px 0 4px 0; }
+.sectionHead {
+  font-weight: bold;
+  padding: 4px 0;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+  color: var(--uxp-host-text-color-secondary, #aaa);
+}
+.sectionHead.static { cursor: default; }
+.sectionBody { padding-bottom: 4px; }
+
+.field { display: flex; flex-direction: row; align-items: center; margin: 2px 0; }
+.field .lbl { width: 92px; flex: 0 0 92px; color: var(--uxp-host-text-color-secondary, #bbb); cursor: default; }
+.field input[type=range] { flex: 1 1 auto; min-width: 60px; }
+.field input.num { width: 58px; flex: 0 0 58px; margin-left: 4px; }
+.field select { flex: 1 1 auto; min-width: 80px; }
+.field input[type=text] { flex: 1 1 auto; }
+.field button { margin-left: 4px; flex: 0 0 auto; }
+
+button.primary {
+  padding: 6px 12px;
+  font-weight: bold;
+  background-color: #2680eb;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+#status { margin-top: 4px; color: #9cd; min-height: 14px; }
+#status.err { color: #f88; }
+
+/* browser test harness: show the dialog filling the window */
+body.browser dialog#studio { width: 96vw; height: 92vh; max-width: none; max-height: none; }
+
+/* brush tip list */
+.subHead { font-size: 10px; color: #999; margin: 6px 0 2px 0; }
+.field.tip .lbl { width: 66px; flex: 0 0 66px; }
+.tipThumb { width: 22px; height: 22px; flex: 0 0 22px; margin-right: 4px; border: 1px solid #555; }
+.field.tip .lbl { overflow: hidden; white-space: nowrap; }
+.tipDel { flex: 0 0 auto; width: 16px; margin-left: 4px; text-align: center; font-size: 14px; color: #bbb; cursor: pointer; }
